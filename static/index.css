@@ -1,7 +1,6 @@
 body {
     background: #263238;
 }
-
 #app {
     font-family:'Avenir', Helvetica, Arial, sans-serif;
     color:white !important;
@@ -10,6 +9,10 @@ body {
 }
 #app h1 {
     margin-bottom:20px;
+}
+#app h1 a{
+    text-decoration: none;
+    color: white;
 }
 #app form {
     text-align:center;
@@ -23,7 +26,6 @@ body {
     text-align:center;
 }
 
-// Hr
 #app hr {
     display: block;
     height: 1px;
@@ -33,12 +35,14 @@ body {
     padding: 0; 
 }
 
-//About
-#app #about{
-  color:black;
+#app footer {
+  font-size: 0.76em;
 }
 
-// Place Holder for input
+.list-group-item{
+  color:#333 !important;
+  cursor: pointer;
+}
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
   color: #eee;
 }

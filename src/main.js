@@ -17,6 +17,7 @@ const router = new VueRouter({
 	routes
 });
 
+
 //Instatiate
 new Vue({
     el: '#app',
