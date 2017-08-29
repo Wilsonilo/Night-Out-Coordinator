@@ -24,7 +24,7 @@
                             <hr>
                             <div v-if="weHaveResultsCities && selectedCity === 'none'" id="citiesresults">
                                 <ul class="list-group">
-                                    <li v-for="city in cities" class="list-group-item" v-on:click="lookFor(city.matching_full_name)">{{ city.matching_full_name }}</li>
+                                    <li v-for="city in cities" class="list-group-item" v-on:click="lookFor(city.matching_alternate_names[0].name)">{{ city.matching_full_name }}</li>
                                 </ul>
                             </div>
                             <div v-if="resultsForUser.length > 0 && cityinput.length === 0"class="jumbotron">
@@ -168,12 +168,10 @@
                 //Run Fetch and present results.
                 if(this.selectedCity !== undefined){
 
-                    var 
-
-                    console.log("Requesting: ", this.accessToken ? undefined : 'token Bearer defined', this.selectedCity);
+                    console.log("Requesting: ", this.selectedCity);
                     
                     //Search for it
-                    axios.post('http://localhost:3000/api/yelp/search', 
+                    axios.post('api/yelp/search', 
                         {
                             location: this.selectedCity,
                             limit   : 10
@@ -186,7 +184,7 @@
                     })
                     .then(response => {
 
-                        //Real Response
+                        console.log(response.data);
 
                         //Dev Response
                         this.resultsForUser = [];
@@ -195,11 +193,8 @@
                             response.data[i]['usergoing'] = false;
 
                             //Yelp
-                            this.resultsForUser.push(response.businesses[i]);
+                            this.resultsForUser.push(response.data[i]);
 
-                            //Dev
-                            //this.resultsForUser.push(response.data[i]);
-                            //Use title instead of name on the front.
                         }
                         console.log(this.resultsForUser);
 

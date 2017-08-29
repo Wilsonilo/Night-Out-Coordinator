@@ -81,9 +81,33 @@ routerAPI.post('/users/savesession/',function(req, res){
 routerAPI.post('/yelp/search',function(req, res){
 
   console.log("New request for Yelp", req.body);
-  var yelpFunsionUrl = 'https://api.yelp.com/v3/businesses/search';
+  var yelpFunsionUrl = 'https://api.yelp.com/v3/businesses/search?location=';
+  
+  //Just double check that we have location
+  if(req.body.location !== undefined){
 
+    yelpFunsionUrl  += req.body.location + "&limit=10";
 
+    //Request Yelp
+    axios.get(yelpFunsionUrl, 
+        {
+            headers: 
+            {
+                Authorization: 'Bearer ' + process.env.FREECODECAMPYELPBEARER
+            }
+        })
+    .then(response => {
+      //console.log("DATA: ", response.data.businesses);
+      res.send(response.data.businesses);
+      res.end();
+    })
+    .catch(function (error) {
+        console.log("Got error: ", error);
+        res.send({});
+        res.end();
+    });
+
+  }
 
 });
 
