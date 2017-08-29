@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
-    "start": "node build/dev-server.js",
-    "buildvue": "node build/build.js",
+    "startvue": "node build/dev-server.js",
+    "start": "node server.js",
     "build": "node server.js"
   },
   "dependencies": {
