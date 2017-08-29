@@ -23,11 +23,11 @@ passport.deserializeUser(function(id, done) {
 });
 
 //Request information for Twitter
-//http://localhost:3000/api/auth/twitter/callback
+//http://localhost:3000/api/auth/twitter/callback for dev
 passport.use(new TwitterStrategy({
     consumerKey: process.env.FREECODECAMPTWITTERKEYNIGHTOUT,
     consumerSecret: process.env.FREECODECAMPTWITTERSECRETNIGHTOUT,
-    callbackURL: "http://localhost:3000/api/auth/twitter/callback"
+    callbackURL: "https://nightoutcoordinator.herokuapp.com/api/auth/twitter/callback"
   },
   function(token, tokenSecret, profile, done) {
     done(null, profile);
