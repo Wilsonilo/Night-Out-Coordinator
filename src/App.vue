@@ -13,7 +13,7 @@
                             <form class="animated bounce">
                               <div class="form-group">
                                 <label for="placelooking">Where are you from?</label>
-                                <input type="text" class="form-control" id="placelooking" placeholder="San Francisco, California" v-on:keydown="lookForCity">
+                                <input type="text" class="form-control" id="placelooking" placeholder="San Francisco, California" v-on:keydown="lookForCity" v-model="cityinput">
                                 <small id="smallhelp" class="form-text text-muted">Look for good places to eat something or places to go.</small>
                               </div>
                             </form>
@@ -25,6 +25,17 @@
                             <div v-if="weHaveResultsCities && selectedCity === 'none'" id="citiesresults">
                                 <ul class="list-group">
                                     <li v-for="city in cities" class="list-group-item" v-on:click="lookFor(city.matching_full_name)">{{ city.matching_full_name }}</li>
+                                </ul>
+                            </div>
+                            <div v-if="resultsForUser.length > 0 && cityinput.length === 0"class="jumbotron">
+                                <h3 style="color:#6441A5;">{{ holderCityPrev }}</h3>
+                                <ul class="list-group">
+                                    <li v-for="(place,index) in resultsForUser" class="list-group-item">
+                                        {{ place.name }}
+                                        <br>
+                                        <button class="btn btn-success btn-sm" v-on:click="joinPlace(index)" v-if="!isPlaceActive(index)">I'm Going</button>
+                                        <div v-if="isPlaceActive(index)"> You are going here!</div>
+                                    </li>
                                 </ul>
                             </div>
                             <router-view></router-view>
@@ -44,28 +55,90 @@
     </div>
 </template>
 <script>
-// https://api.teleport.org/api/cities/{?search} 
+    import axios from 'axios';
     export default{
 
-        name:'about',
+        name:'App',
         data () {
             return {
-                onhome: true,
-                cities : [],
+                onhome              : true,
+                cities              : [],
+                userAuth            : false,
                 weHaveResultsCities : false,
-                selectedCity: undefined
+                selectedCity        : undefined,
+                accessToken         : process.env.YELP.tempbearertoken,
+                yelpid              : process.env.YELP.id,
+                yelpsecret          : process.env.YELP.secret,                
+                cityinput           : '',
+                currentuserid       : undefined,
+                holderCityPrev      : '',
+                resultsForUser      : []
+            }
+        },
+        watch: {
+            resultsForUser: function (item) {
+                console.log(item);
             }
         },
         created(){
-            this.selectedCity = 'none';
-            console.log("ID and Key from YELP: ", process.env.FREECODECAMPYELPCLIENTID,  process.env.FREECODECAMPYELPCLIENTSECRET );
+            
+            console.log(this.$route.query);
+            this.selectedCity   = 'none';
+
+            //Fetch information from callback
+            //http://localhost:3000/ / On dev add call to express own server.
+            fetch('api/users/session', {'method': 'GET'})
+            .then(response => response.json())
+            .then(json => {
+                console.log(json);
+                if(json.userid !== undefined){
+
+                    //Set information, we have a callback session
+                    this.currentuserid          = json.userid;
+                    this.holderCityPrev         = json.locationuser;
+                    this.weHaveResultsCities    = true;
+                    this.resultsForUser         = json.placesuser;
+                }
+            })
         },
-        methods: {
+        methods: {  
+            joinPlace : function(indexplace){
+
+                //Update place, user is going.
+                this.resultsForUser[indexplace]['usergoing'] = true;
+                console.log(indexplace, this.resultsForUser[indexplace]);
+
+                // If we do not have current user id it means we are gonna log the user
+                // with Twitter, save current results and the places for return.
+                if(this.currentuserid === undefined){
+
+                    axios.post('api/users/savesession', {
+                        'location'      : this.holderCityPrev, 
+                        'places'        : this.resultsForUser
+                    })
+                    .then(response => {
+
+                        //Once saved to session we redirect him/ser
+                        location.href = 'api/auth/twitter';
+                    });
+
+                } 
+
+            },
+            isPlaceActive: function(index){
+
+                var status = this.resultsForUser[index];
+                if(status.usergoing === true){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
             lookForCity : function(e){
                 var cityState = e.target.value;
                 if(cityState !== undefined && cityState !== ""){
                     var urlTeleport = 'https://api.teleport.org/api/cities/?search='+ cityState;
-                    console.log(this.selectedCity);
+                    //console.log(this.selectedCity);
                     fetch(urlTeleport, {'method': 'GET'})
                     .then(response => response.json())
                     .then(json => {
@@ -85,14 +158,69 @@
                 }
             },
             lookFor: function(city){
+
+                //Set selected City 
                 this.selectedCity = city;
+                this.holderCityPrev = city;
 
                 console.log("User selected a city: ", this.selectedCity);
 
                 //Run Fetch and present results.
                 if(this.selectedCity !== undefined){
-                    var yelpFunsionUrl = 'https://api.yelp.com/v3/businesses/search'
-                    fetch()
+
+                    //Declare search url
+                    //Yelp Fusion has problems with CORS:
+                    //https://github.com/builderLabs/Yelp-Fusion-JavaScript/blob/master/yelpFusionJS.md
+                    const yelpFunsionUrl = 'https://api.yelp.com/v3/businesses/search';
+
+                    
+                    //For Dev mode i'm using a temp JSON API.
+                    //const yelpFunsionUrl = 'https://jsonplaceholder.typicode.com/posts';
+
+                    console.log("Requesting: ", this.accessToken, this.selectedCity);
+                    
+                    //Search for it
+                    axios.get(yelpFunsionUrl, 
+                        {
+                            location: this.selectedCity,
+                            limit   : 10
+                        }, 
+                        {        
+                            headers: 
+                            {
+                                'Authorization': 'Bearer ' + this.accessToken
+                            }
+                    })
+                    .then(response => {
+
+                        //Real Response
+
+                        //Dev Response
+                        this.resultsForUser = [];
+
+                        for(var i =0; i< 10;i++){
+                            response.data[i]['usergoing'] = false;
+
+                            //Yelp
+                            this.resultsForUser.push(response.businesses[i]);
+
+                            //Dev
+                            //this.resultsForUser.push(response.data[i]);
+                            //Use title instead of name on the front.
+                        }
+                        console.log(this.resultsForUser);
+
+                        //Reset for reuse
+                        this.cityinput = '';
+                        this.weHaveResultsCities = false;
+                        this.cities = [];
+                        this.selectedCity = 'none'
+
+                        
+                    })
+                    .catch(function (error) {
+                        console.log("Got error: ", error);
+                    });
                 }
                 
             }

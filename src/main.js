@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import vueResource from 'vue-resource'
+import axios from 'axios';
 
 //Components
 import App from './App.vue'
@@ -7,6 +9,9 @@ import about from './components/about.vue'
 
 //Set Router
 Vue.use(VueRouter);
+
+//Resource for http
+Vue.use(vueResource);
 
 const routes = [
   { path: '/about', component: about }
@@ -16,7 +21,6 @@ const routes = [
 const router = new VueRouter({
 	routes
 });
-
 
 //Instatiate
 new Vue({
