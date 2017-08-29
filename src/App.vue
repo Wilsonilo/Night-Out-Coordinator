@@ -168,19 +168,12 @@
                 //Run Fetch and present results.
                 if(this.selectedCity !== undefined){
 
-                    //Declare search url
-                    //Yelp Fusion has problems with CORS:
-                    //https://github.com/builderLabs/Yelp-Fusion-JavaScript/blob/master/yelpFusionJS.md
-                    const yelpFunsionUrl = 'https://api.yelp.com/v3/businesses/search';
+                    var 
 
-                    
-                    //For Dev mode i'm using a temp JSON API.
-                    //const yelpFunsionUrl = 'https://jsonplaceholder.typicode.com/posts';
-
-                    console.log("Requesting: ", this.accessToken, this.selectedCity);
+                    console.log("Requesting: ", this.accessToken ? undefined : 'token Bearer defined', this.selectedCity);
                     
                     //Search for it
-                    axios.get(yelpFunsionUrl, 
+                    axios.post('http://localhost:3000/api/yelp/search', 
                         {
                             location: this.selectedCity,
                             limit   : 10

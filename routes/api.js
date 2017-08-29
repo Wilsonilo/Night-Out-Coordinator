@@ -3,9 +3,11 @@ const routerAPI       = express.Router();
 var passport          = require('passport');
 var TwitterStrategy   = require('passport-twitter').Strategy;
 var cors              = require('cors');
-var session             = require('express-session');
+var session           = require('express-session');
 var MemoryStore       = session.MemoryStore;
 var memoryTemp        = new MemoryStore();
+var axios             = require('axios');
+
 //Set Cors to avoid problems
 routerAPI.use(cors())
 
@@ -72,6 +74,16 @@ routerAPI.post('/users/savesession/',function(req, res){
         res.send({'status': 'error'})
         res.end();
   }
+
+});
+
+//Yelp Triangulation
+routerAPI.post('/yelp/search',function(req, res){
+
+  console.log("New request for Yelp", req.body);
+  var yelpFunsionUrl = 'https://api.yelp.com/v3/businesses/search';
+
+
 
 });
 
