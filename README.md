@@ -8,6 +8,9 @@ Really simple app, combines Yelp Fusion (for the places), Teleport (for request 
 ## Demo
 https://nightoutcoordinator.herokuapp.com
 
+![Nighout](http://wilsonmunoz.net/etc/githubgifs/nighout.gif "Night Out Coordinator")
+
+
 ## CORS on Yelp Fusion.
 Tricky situation on Yelp, check more info on this issues / article.md
 https://github.com/Yelp/yelp-fusion/issues/64
